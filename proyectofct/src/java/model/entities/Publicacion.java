@@ -16,7 +16,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -31,7 +30,6 @@ public class Publicacion {
     private Long id;
 
     private String titulo;
-    private String descripcion;
 
     @Temporal(TemporalType.DATE)
     private Date fechaPublicacion;
@@ -40,7 +38,6 @@ public class Publicacion {
     private String contenido;
     @ElementCollection
     private List<String> imagenes;
-
     @ManyToOne
     private Usuario usuario;
 
@@ -67,14 +64,6 @@ public class Publicacion {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
     }
 
     public Date getFechaPublicacion() {

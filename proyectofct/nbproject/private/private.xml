@@ -7,16 +7,17 @@
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/conf/persistence.xml</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Usuario.java</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Comunidad.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Comunida.java</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Reportes.java</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Publicacion.java</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Expulsados.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ComentarioJpaController.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ExpulsadosJpaController.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/PublicacionJpaController.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ReportesJpaController.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/UsuarioJpaController.java</file>
-            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ComunidadJpaController.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ComentarioService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ExpulsadosService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/PublicacionService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ReportesService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/UsuarioService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/services/ComunidadService.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/tests/CrearDatos.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/Comentario.java</file>
         </group>
     </open-files>
 </project-private>

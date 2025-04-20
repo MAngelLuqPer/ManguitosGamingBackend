@@ -4,6 +4,7 @@
  */
 package model.services;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -18,7 +19,7 @@ import model.services.exceptions.NonexistentEntityException;
  *
  * @author mangel
  */
-public class UsuarioService {
+public class UsuarioService implements Serializable{
               
     public UsuarioService(EntityManagerFactory emf) {
         this.emf = emf;
