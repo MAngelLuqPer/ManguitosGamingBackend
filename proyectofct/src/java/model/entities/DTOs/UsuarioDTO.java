@@ -4,21 +4,7 @@
  */
 package model.entities.DTOs;
 
-import model.entities.*;
 import java.util.Date;
-import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -36,6 +22,7 @@ public class UsuarioDTO {
     private boolean privacidad;
     private int numPublicaciones;
     private int numComentarios;
+    private String pwd;
 
     public UsuarioDTO() {}
 
@@ -130,6 +117,14 @@ public class UsuarioDTO {
 
     public void setNumComentarios(int numComentarios) {
         this.numComentarios = numComentarios;
+    }
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
     }
     
     
