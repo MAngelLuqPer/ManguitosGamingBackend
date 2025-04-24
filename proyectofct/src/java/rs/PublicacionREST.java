@@ -33,6 +33,17 @@ public class PublicacionREST {
 
     return Response.ok(publicacionDTOs).build();
     }
+    @GET
+    @Path("/comunidad/{id}/posts")
+    public Response getPublicacionesByComunidad(@javax.ws.rs.PathParam("id") Long id) {
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("proyectofctPU");
+        PublicacionService ps = new PublicacionService(emf);
+        List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(id);
+        List<PublicacionDTO> publicacionDTOs = publicaciones.stream()
+                .map(PublicacionDTO::new)
+                .collect(Collectors.toList());
 
+        return Response.ok(publicacionDTOs).build();
+    }
 }
 

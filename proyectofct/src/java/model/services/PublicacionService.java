@@ -133,5 +133,16 @@ public class PublicacionService implements Serializable {
             em.close();
         }
     }
+    public List<Publicacion> findPublicacionesByComunidadId(Long comunidadId) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.createQuery(
+                    "SELECT p FROM Publicacion p WHERE p.comunidad.id = :comunidadId", Publicacion.class)
+                    .setParameter("comunidadId", comunidadId)
+                    .getResultList();
+        } finally {
+            em.close();
+        }
+    }
     
 }

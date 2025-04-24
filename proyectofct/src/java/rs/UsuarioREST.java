@@ -4,8 +4,7 @@
  */
 package rs;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
@@ -47,8 +46,12 @@ public class UsuarioREST {
             Usuario usuario = new Usuario();
             usuario.setNombre(usuarioDTO.getNombre());
             usuario.setEmail(usuarioDTO.getEmail());
+            if (us.findUsuarioByEmail(usuario.getEmail()) != null )  {
+                return Response.status(Response.Status.CONFLICT).build();
+            }
             usuario.setDescripcion(usuarioDTO.getDescripcion());
             usuario.setPrivacidad(usuarioDTO.isPrivacidad());
+            usuario.setFechaCreacion(new Date());
             String hashedPassword = BCrypt.hashpw(usuarioDTO.getPwd(), BCrypt.gensalt());
             usuario.setPwd(hashedPassword);
 
