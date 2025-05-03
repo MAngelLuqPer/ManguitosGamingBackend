@@ -76,6 +76,7 @@ public class PublicacionService implements Serializable {
             try {
                 publicacion = em.getReference(Publicacion.class, id);
                 publicacion.getId();
+                 publicacion.getComentarios().forEach(em::remove);
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The actividad with id " + id + " no longer exists.", enfe);
             }
