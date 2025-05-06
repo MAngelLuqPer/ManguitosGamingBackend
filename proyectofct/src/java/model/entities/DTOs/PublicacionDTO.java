@@ -22,7 +22,9 @@ public class PublicacionDTO {
     private Long usuarioId;  // Referencia solo al ID del Usuario
     private Long comunidadId;  // Referencia solo al ID de la Comunidad
 
-    
+     public PublicacionDTO() {
+    }
+
         public PublicacionDTO(Publicacion publicacion) {
         this.id = publicacion.getId();
         this.titulo = publicacion.getTitulo();

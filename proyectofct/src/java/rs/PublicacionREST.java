@@ -4,18 +4,24 @@
  */
 package rs;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
+import model.entities.Comunidad;
 import model.entities.DTOs.ComunidadDTO;
 import model.entities.DTOs.PublicacionDTO;
 import model.entities.Publicacion;
+import model.entities.Usuario;
+import model.services.ComunidadService;
 import model.services.PublicacionService;
+import model.services.UsuarioService;
 
 /**
  *
@@ -63,6 +69,19 @@ public class PublicacionREST {
                     .entity("Publicación no encontrada con id: " + id).build();
         }
     }
-    
+    @POST
+        public Response createPubli ( PublicacionDTO publiDTO){
+            Publicacion newPubli = new Publicacion();
+            newPubli.setTitulo(publiDTO.getTitulo());
+            newPubli.setContenido(publiDTO.getContenido());
+            newPubli.setFechaPublicacion(new Date());
+            
+            Usuario usuario = new UsuarioService(emf).findUsuario(publiDTO.getUsuarioId());
+            Comunidad comunidad = new ComunidadService(emf).findComunidad(publiDTO.getComunidadId());
+            newPubli.setUsuario(usuario);
+            newPubli.setComunidad(comunidad);
+            ps.create(newPubli);
+            return Response.status(Response.Status.CREATED).build();
+        }
 }
 
