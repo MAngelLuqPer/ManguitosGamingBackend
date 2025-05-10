@@ -126,4 +126,6 @@ public class ComunidadDTO {
     public void setIdUsuAdmin(Long idUsuAdmin) {
         this.idUsuAdmin = idUsuAdmin;
     }
+    
+    
 }

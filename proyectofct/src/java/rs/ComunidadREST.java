@@ -5,6 +5,7 @@
 package rs;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
@@ -93,6 +94,19 @@ public class ComunidadREST {
         cs.edit(com);
         us.edit (usu);
         return Response.status(Response.Status.ACCEPTED).build();
+    }
+    @POST
+    public Response crearComunidad(ComunidadDTO comunidadDto) {
+        Comunidad comunidad = new Comunidad();
+        comunidad.setNombre(comunidadDto.getNombre());
+        comunidad.setDescripcion(comunidadDto.getDescripcion());
+        comunidad.setReglas(comunidadDto.getReglas());
+        comunidad.setFechaCreacion(new Date());
+        Long idUsuAdmin = comunidadDto.getIdUsuAdmin();
+        Usuario usuAdmin = us.findUsuario(idUsuAdmin);
+        comunidad.setUsuAdmin(usuAdmin);
+        cs.create(comunidad);
+        return Response.status(Response.Status.CREATED).build();
     }
 }
 
