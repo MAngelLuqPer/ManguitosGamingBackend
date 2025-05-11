@@ -108,5 +108,15 @@ public class ComunidadREST {
         cs.create(comunidad);
         return Response.status(Response.Status.CREATED).build();
     }
-}
+    @GET
+    @Path("/ids")
+    public Response getIds () {
+        List<Comunidad> comunidades = cs.findComunidadEntities();
+        
+        List<Long> ids = comunidades.stream()
+                                .map(Comunidad::getId)
+                                .collect(Collectors.toList());
 
+        return Response.ok(ids).build();
+    }
+}
