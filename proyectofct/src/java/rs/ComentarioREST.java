@@ -4,16 +4,27 @@
  */
 package rs;
 
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import model.entities.Comentario;
 import model.entities.DTOs.ComentarioDTO;
+import model.entities.Publicacion;
+import model.entities.Usuario;
 import model.services.ComentarioService;
+import model.services.PublicacionService;
+import model.services.UsuarioService;
+import model.services.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -21,10 +32,12 @@ import model.services.ComentarioService;
  */
 @Path("/comentarios")
 public class ComentarioREST {
-    @GET
-    public Response getAllComentarios() {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("proyectofctPU");
     ComentarioService cs = new ComentarioService(emf);
+    UsuarioService us = new UsuarioService(emf);
+    PublicacionService ps = new PublicacionService(emf);
+    @GET
+    public Response getAllComentarios() {
     List<Comentario> comentarios = cs.findComentarioEntities();
     List<ComentarioDTO> comentarioDTOs = comentarios.stream()
         .map(ComentarioDTO::new)
@@ -32,6 +45,58 @@ public class ComentarioREST {
 
     return Response.ok(comentarioDTOs).build();
     }
+    @GET
+    @Path("/publicacion/{publicacionId}")
+    public Response getComentariosByPublicacion(@PathParam("publicacionId") Long publicacionId) {
 
+        List<Comentario> comentarios = cs.findComentarioEntitiesByPublicacion(publicacionId);
+        List<ComentarioDTO> comentarioDTOs = comentarios.stream()
+            .map(ComentarioDTO::new)
+            .collect(Collectors.toList());
+
+        return Response.ok(comentarioDTOs).build();
+    }
+    @POST
+    public Response crearComentario(ComentarioDTO comentarioDTO) {
+       
+        try {
+            Comentario comentario = new Comentario();
+            comentario.setContenido(comentarioDTO.getContenido());
+            comentario.setFechaComentario(new Date());
+
+            // Obtener usuario
+            Usuario usuario = us.findUsuario(comentarioDTO.getUsuarioId());
+            if (usuario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Usuario no encontrado").build();
+            }
+            comentario.setUsuario(usuario);
+
+            // Obtener publicación
+            Publicacion publicacion = ps.findPublicacion(comentarioDTO.getPublicacionId());
+            if (publicacion == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Publicación no encontrada").build();
+            }
+            comentario.setPublicacion(publicacion);
+
+            cs.create(comentario);
+
+            return Response.status(Response.Status.CREATED).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al crear comentario: " + e.getMessage()).build();
+        }
+    }
+    @DELETE
+    @Path("/{id}")
+    public Response deleteComment(@PathParam("id") Long comId) {
+        try {
+            cs.destroy(comId);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (NonexistentEntityException ex) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+         }
+    }
 }
 

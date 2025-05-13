@@ -39,6 +39,17 @@ public class UsuarioREST {
         .collect(Collectors.toList());
     return Response.ok(usuarioDTOs).build();
     }
+    @GET
+    @Path("/{id}")
+    public Response getUsuarioById (@javax.ws.rs.PathParam("id") Long id) {
+        Usuario usuario = us.findUsuario(id);
+        if (usuario == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Usuario no encontrado con ID: " + id).build();
+        }
+        UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
+        return Response.ok(usuarioDTO).build();
+    }
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createUsuario(UsuarioDTO usuarioDTO) {

@@ -66,6 +66,9 @@ public class ComunidadREST {
             return Response.status(Response.Status.NOT_FOUND).entity("Usuario o Comunidad no encontrados").build();
         }
         com.getUsuarios().add(usu);
+        int numMiembros = com.getNumMiembros();
+        numMiembros++;
+        com.setNumMiembros(numMiembros);
         usu.getComunidades().add(com);
         cs.edit(com); 
         us.edit(usu);
@@ -91,6 +94,9 @@ public class ComunidadREST {
         }
         com.getUsuarios().removeIf(u -> u.getId().equals(usuarioId));
         usu.getComunidades().removeIf(c -> c.getId().equals(comunidadId));
+        int numMiembros = com.getNumMiembros();
+        numMiembros--;
+        com.setNumMiembros(numMiembros);
         cs.edit(com);
         us.edit (usu);
         return Response.status(Response.Status.ACCEPTED).build();

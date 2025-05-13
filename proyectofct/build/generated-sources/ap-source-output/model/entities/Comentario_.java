@@ -1,7 +1,7 @@
 package model.entities;
 
 import java.util.Date;
-import javax.annotation.processing.Generated;
+import javax.annotation.Generated;
 import javax.persistence.metamodel.ListAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.StaticMetamodel;
@@ -9,7 +9,7 @@ import model.entities.Comentario;
 import model.entities.Publicacion;
 import model.entities.Usuario;
 
-@Generated(value="org.eclipse.persistence.internal.jpa.modelgen.CanonicalModelProcessor", date="2025-05-11T20:40:22", comments="EclipseLink-2.7.12.v20230209-rNA")
+@Generated(value="EclipseLink-2.7.12.v20230209-rNA", date="2025-05-12T20:08:38")
 @StaticMetamodel(Comentario.class)
 public class Comentario_ { 
 

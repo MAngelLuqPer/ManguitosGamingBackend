@@ -133,6 +133,12 @@ public class ComentarioService implements Serializable {
             em.close();
         }
     }
-    
+    public List<Comentario> findComentarioEntitiesByPublicacion(Long publicacionId) {
+                EntityManager em = getEntityManager();
+    return em.createQuery("SELECT c FROM Comentario c WHERE c.publicacion.id = :id", Comentario.class)
+             .setParameter("id", publicacionId)
+             .getResultList();
+        
+    }
 }
 

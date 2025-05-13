@@ -6,13 +6,17 @@ package rs;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  *
  * @author mangel
  */
 
-@ApplicationPath("")
-public class ApplicationConfig extends Application{
-    
+@ApplicationPath("/api")
+public class ApplicationConfig extends ResourceConfig {
+    public ApplicationConfig() {
+        // Registro de recursos (aquí defines las clases que responden a las rutas)
+        packages("rs");  // Paquete donde se encuentran tus recursos
+    }
 }
