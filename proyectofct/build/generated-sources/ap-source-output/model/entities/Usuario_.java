@@ -11,7 +11,7 @@ import model.entities.Expulsados;
 import model.entities.Publicacion;
 import model.entities.Reportes;
 
-@Generated(value="EclipseLink-2.7.12.v20230209-rNA", date="2025-05-12T20:08:38")
+@Generated(value="EclipseLink-2.7.12.v20230209-rNA", date="2025-05-16T12:17:03")
 @StaticMetamodel(Usuario.class)
 public class Usuario_ { 
 

@@ -8,7 +8,7 @@ import model.entities.Comunidad;
 import model.entities.Publicacion;
 import model.entities.Usuario;
 
-@Generated(value="EclipseLink-2.7.12.v20230209-rNA", date="2025-05-12T20:08:38")
+@Generated(value="EclipseLink-2.7.12.v20230209-rNA", date="2025-05-16T12:17:03")
 @StaticMetamodel(Reportes.class)
 public class Reportes_ { 
 

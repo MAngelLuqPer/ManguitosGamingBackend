@@ -98,5 +98,61 @@ public class ComentarioREST {
             return Response.status(Response.Status.NOT_FOUND).build();
          }
     }
+    @POST
+    @Path("/responder")
+    public Response responderComentario(ComentarioDTO comentarioDTO) {
+        try {
+            Comentario comentario = new Comentario();
+            comentario.setContenido(comentarioDTO.getContenido());
+            comentario.setFechaComentario(new Date());
+
+            // Obtener usuario
+            Usuario usuario = us.findUsuario(comentarioDTO.getUsuarioId());
+            if (usuario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Usuario no encontrado").build();
+            }
+            comentario.setUsuario(usuario);
+
+            // Obtener publicación
+            Publicacion publicacion = ps.findPublicacion(comentarioDTO.getPublicacionId());
+            if (publicacion == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Publicación no encontrada").build();
+            }
+            comentario.setPublicacion(publicacion);
+
+            // Obtener comentario padre
+            if (comentarioDTO.getComentarioPadreId() != null) {
+                Comentario comentarioPadre = cs.findComentario(comentarioDTO.getComentarioPadreId());
+                if (comentarioPadre == null) {
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity("Comentario padre no encontrado").build();
+                }
+                comentario.setComentarioPadre(comentarioPadre);
+            }
+
+            cs.create(comentario);
+            return Response.status(Response.Status.CREATED).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al responder comentario: " + e.getMessage()).build();
+        }
+    }
+    @GET
+    @Path("/respuestas/{comentarioId}")
+    public Response getRespuestasByComentario(@PathParam("comentarioId") Long comentarioId) {
+        try {
+            List<Comentario> respuestas = cs.findRespuestasByComentarioPadre(comentarioId);
+            List<ComentarioDTO> respuestaDTOs = respuestas.stream()
+                    .map(ComentarioDTO::new)
+                    .collect(Collectors.toList());
+
+            return Response.ok(respuestaDTOs).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al obtener respuestas: " + e.getMessage()).build();
+        }
+    }
 }
 

@@ -134,11 +134,18 @@ public class ComentarioService implements Serializable {
         }
     }
     public List<Comentario> findComentarioEntitiesByPublicacion(Long publicacionId) {
-                EntityManager em = getEntityManager();
-    return em.createQuery("SELECT c FROM Comentario c WHERE c.publicacion.id = :id", Comentario.class)
-             .setParameter("id", publicacionId)
-             .getResultList();
-        
+        EntityManager em = getEntityManager();
+        return em.createQuery("SELECT c FROM Comentario c WHERE c.publicacion.id = :id", Comentario.class)
+                 .setParameter("id", publicacionId)
+                 .getResultList();
+
     }
+    public List<Comentario> findRespuestasByComentarioPadre(Long comentarioPadreId) {
+         EntityManager em = getEntityManager();
+        return em.createQuery("SELECT c FROM Comentario c WHERE c.comentarioPadre.id = :padreId", Comentario.class)
+                 .setParameter("padreId", comentarioPadreId)
+                 .getResultList();
+    }
+
 }
 

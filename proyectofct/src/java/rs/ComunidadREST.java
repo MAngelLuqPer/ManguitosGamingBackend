@@ -20,9 +20,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.entities.Comunidad;
 import model.entities.DTOs.ComunidadDTO;
+import model.entities.DTOs.ExpulsadoDTO;
 import model.entities.DTOs.UnionDTO;
+import model.entities.DTOs.UsuarioDTO;
+import model.entities.Expulsados;
 import model.entities.Usuario;
 import model.services.ComunidadService;
+import model.services.ExpulsadosService;
 import model.services.UsuarioService;
 
 /**
@@ -34,6 +38,7 @@ public class ComunidadREST {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("proyectofctPU");
     ComunidadService cs = new ComunidadService(emf);
     UsuarioService us = new UsuarioService(emf);
+    ExpulsadosService es = new ExpulsadosService(emf);
     @GET
     public Response getAllComunidades() {
     List<Comunidad> comunidades = cs.findComunidadEntities();
@@ -124,5 +129,73 @@ public class ComunidadREST {
                                 .collect(Collectors.toList());
 
         return Response.ok(ids).build();
+    }
+    @GET
+    @Path("/{comunidadId}/usuarios")
+    public Response getUsuariosDeComunidad(@PathParam("comunidadId") Long comunidadId) {
+        Comunidad comunidad = cs.findComunidad(comunidadId);
+        if (comunidad == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Comunidad no encontrada con id: " + comunidadId).build();
+        }
+
+        List<UsuarioDTO> usuarioDTOs = comunidad.getUsuarios().stream()
+            .map(usuario -> new UsuarioDTO(usuario))
+            .collect(Collectors.toList());
+
+        return Response.ok(usuarioDTOs).build();
+    }
+    
+    @POST
+    @Path("/{comunidadId}/expulsar")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response expulsarUsuario(
+        @PathParam("comunidadId") Long comunidadId,
+        ExpulsadoDTO expulsionDTO) {
+
+        try {
+            // 1. Buscar entidades
+            Comunidad comunidad = cs.findComunidad(comunidadId);
+            Usuario usuario = us.findUsuario(expulsionDTO.getUsuarioId());
+
+            if (comunidad == null || usuario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Comunidad o usuario no encontrados").build();
+            }
+
+
+            // 3. Verificar membresía (versión mejorada)
+            boolean usuarioEnComunidad = comunidad.getUsuarios().stream()
+                .anyMatch(u -> u.getId().equals(usuario.getId()));
+
+            if (!usuarioEnComunidad) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("El usuario no pertenece a esta comunidad").build();
+            }
+
+            // 4. Realizar la expulsión
+            Expulsados expulsion = new Expulsados();
+            expulsion.setUsuario(usuario);
+            expulsion.setComunidad(comunidad);
+            expulsion.setRazon(expulsionDTO.getRazon());
+            expulsion.setFechaFin(expulsionDTO.getFechaFin());
+
+            // 5. Actualizar relaciones (versión segura)
+            comunidad.getUsuarios().removeIf(u -> u.getId().equals(usuario.getId()));
+            usuario.getComunidades().removeIf(c -> c.getId().equals(comunidad.getId()));
+
+            comunidad.setNumMiembros(comunidad.getNumMiembros() - 1);
+
+            // 6. Guardar cambios
+            cs.edit(comunidad);
+            us.edit(usuario);
+            es.create(expulsion);
+
+            return Response.ok().entity("Usuario expulsado correctamente").build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al expulsar usuario: " + e.getMessage()).build();
+        }
     }
 }
