@@ -5,6 +5,7 @@
 package model.entities.DTOs;
 
 import java.util.Date;
+import model.entities.Usuario;
 
 /**
  *
@@ -26,7 +27,7 @@ public class UsuarioDTO {
 
     public UsuarioDTO() {}
 
-    public UsuarioDTO(model.entities.Usuario u) {
+    public UsuarioDTO(Usuario u) {
         this.id = u.getId();
         this.nombre = u.getNombre();
         this.email = u.getEmail();

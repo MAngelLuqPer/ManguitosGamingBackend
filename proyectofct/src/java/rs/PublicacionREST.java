@@ -63,7 +63,7 @@ public class PublicacionREST {
         System.out.println(id);
         try {
             ps.destroy(id);
-            return Response.noContent().build(); // 204 No Content si se elimina correctamente
+            return Response.ok().build(); // 204 No Content si se elimina correctamente
         } catch (Exception e) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Publicación no encontrada con id: " + id).build();

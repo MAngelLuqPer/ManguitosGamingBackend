@@ -6,6 +6,7 @@ package model.entities;
 
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -47,7 +48,7 @@ public class Publicacion {
     @OneToMany(mappedBy = "publicacion")
     private List<Comentario> comentarios;
 
-    @OneToMany(mappedBy = "publicacion")
+    @OneToMany(mappedBy = "publicacion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reportes> reportes;
 
     public Long getId() {

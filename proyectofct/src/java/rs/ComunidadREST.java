@@ -191,7 +191,7 @@ public class ComunidadREST {
             us.edit(usuario);
             es.create(expulsion);
 
-            return Response.ok().entity("Usuario expulsado correctamente").build();
+            return Response.ok().build();
 
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

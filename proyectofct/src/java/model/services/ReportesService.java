@@ -12,6 +12,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import model.entities.Comunidad;
 import model.entities.Reportes;
 import model.services.exceptions.NonexistentEntityException;
 
@@ -133,5 +134,11 @@ public class ReportesService implements Serializable {
             em.close();
         }
     }
+    public List<Reportes> findReportesPorComunidad(Comunidad comunidad) {
+    EntityManager em = getEntityManager();
+    return em.createQuery("SELECT r FROM Reportes r WHERE r.comunidad = :comunidad", Reportes.class)
+             .setParameter("comunidad", comunidad)
+             .getResultList();
+}
     
 }
