@@ -6,9 +6,12 @@ package rs;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -24,6 +27,7 @@ import model.services.ComunidadService;
 import model.services.PublicacionService;
 import model.services.ReportesService;
 import model.services.UsuarioService;
+import model.services.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -95,4 +99,22 @@ public class ReportarREST {
                 .build();
 
     } 
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteReport (@PathParam("id") Long id ) {
+        Reportes reporteDel = rs.findReportes(id);
+        if (reporteDel == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+        try {
+            rs.destroy(id);
+             return Response.noContent().build();
+        } catch (NonexistentEntityException ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+    
 }

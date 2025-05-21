@@ -11,6 +11,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import model.entities.Usuario;
@@ -150,4 +151,12 @@ public class UsuarioService implements Serializable{
         }
     }
     
+    public List<Usuario> buscarPorNombre(String texto) {
+        EntityManager em = emf.createEntityManager();
+        String pattern = "%" + texto.toLowerCase() + "%";
+        TypedQuery<Usuario> query = em.createQuery(
+            "SELECT u FROM Usuario u WHERE LOWER(u.nombre) LIKE :pattern", Usuario.class);
+        query.setParameter("pattern", pattern);
+        return query.getResultList();
+    }
 }

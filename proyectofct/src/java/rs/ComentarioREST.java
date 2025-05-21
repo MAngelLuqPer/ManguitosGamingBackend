@@ -92,11 +92,22 @@ public class ComentarioREST {
     @Path("/{id}")
     public Response deleteComment(@PathParam("id") Long comId) {
         try {
+        // Eliminar recursivamente las respuestas del comentario
+        List<Comentario> respuestas = cs.findRespuestasByComentarioPadre(comId);
+        for (Comentario respuesta : respuestas) {
+            deleteComment(respuesta.getId()); // Llamada recursiva
+        }
+
+            // Eliminar el comentario raíz
             cs.destroy(comId);
             return Response.status(Response.Status.NO_CONTENT).build();
         } catch (NonexistentEntityException ex) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-         }
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Comentario no encontrado con id: " + comId).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al eliminar comentario: " + e.getMessage()).build();
+        }
     }
     @POST
     @Path("/responder")

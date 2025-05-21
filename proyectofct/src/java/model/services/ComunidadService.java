@@ -5,14 +5,18 @@
 package model.services;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import model.entities.Comunidad;
+import model.entities.DTOs.ComunidadDTO;
 import model.services.exceptions.NonexistentEntityException;
 
 /**
@@ -134,4 +138,26 @@ public class ComunidadService implements Serializable {
         }
     }
     
+    public List<ComunidadDTO> buscarPorNombre(String texto) {
+        EntityManager em = getEntityManager();
+        if (texto == null || texto.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TypedQuery<Comunidad> query = em.createQuery(
+            "SELECT c FROM Comunidad c WHERE LOWER(c.nombre) LIKE :patron", Comunidad.class);
+        query.setParameter("patron", "%" + texto.toLowerCase() + "%");
+        query.setMaxResults(10);
+
+        return query.getResultList().stream()
+            .map(ComunidadDTO::new)
+            .collect(Collectors.toList());
+    }
+    public List<Comunidad> findComunidadesByAdmin(Long usuarioId) {
+        EntityManager em = getEntityManager();
+        TypedQuery<Comunidad> query = em.createQuery(
+            "SELECT c FROM Comunidad c WHERE c.usuAdmin.id = :usuarioId", Comunidad.class);
+        query.setParameter("usuarioId", usuarioId);
+        return query.getResultList();
+    }
 }

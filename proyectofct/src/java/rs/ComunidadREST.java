@@ -16,6 +16,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.entities.Comunidad;
@@ -24,10 +25,13 @@ import model.entities.DTOs.ExpulsadoDTO;
 import model.entities.DTOs.UnionDTO;
 import model.entities.DTOs.UsuarioDTO;
 import model.entities.Expulsados;
+import model.entities.Publicacion;
 import model.entities.Usuario;
 import model.services.ComunidadService;
 import model.services.ExpulsadosService;
+import model.services.PublicacionService;
 import model.services.UsuarioService;
+import model.services.exceptions.NonexistentEntityException;
 
 /**
  *
@@ -39,6 +43,7 @@ public class ComunidadREST {
     ComunidadService cs = new ComunidadService(emf);
     UsuarioService us = new UsuarioService(emf);
     ExpulsadosService es = new ExpulsadosService(emf);
+    PublicacionService ps = new PublicacionService(emf);
     @GET
     public Response getAllComunidades() {
     List<Comunidad> comunidades = cs.findComunidadEntities();
@@ -109,7 +114,7 @@ public class ComunidadREST {
     @POST
     public Response crearComunidad(ComunidadDTO comunidadDto) {
         Comunidad comunidad = new Comunidad();
-        comunidad.setNombre(comunidadDto.getNombre());
+        comunidad.setNombre("m/"+comunidadDto.getNombre());
         comunidad.setDescripcion(comunidadDto.getDescripcion());
         comunidad.setReglas(comunidadDto.getReglas());
         comunidad.setFechaCreacion(new Date());
@@ -196,6 +201,81 @@ public class ComunidadREST {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Error al expulsar usuario: " + e.getMessage()).build();
+        }
+    }
+    @GET
+    @Path("/buscar")
+    public Response buscarComunidades(@QueryParam("q") String texto) {
+        List<ComunidadDTO> resultados = cs.buscarPorNombre(texto);
+        return Response.ok(resultados).build();
+    }
+    @DELETE
+    @Path("/{id}")
+    public Response eliminarComunidad(@PathParam("id") Long id) {
+        try {
+            // 1. Obtener todas las publicaciones de la comunidad
+            List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(id); // ps es PublicacionService
+
+            // 2. Eliminar cada publicación
+            for (Publicacion pub : publicaciones) {
+                ps.destroy(pub.getId()); // Asegúrate de tener este método en el PublicacionService
+            }
+
+            // 3. Eliminar la comunidad
+            cs.destroy(id);
+
+            return Response.status(Response.Status.ACCEPTED).build();
+
+        } catch (NonexistentEntityException ex) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+    }
+    
+    @GET
+    @Path("/usuario/{usuarioId}")
+    public Response getComunidadesDeUsuario(@PathParam("usuarioId") Long usuarioId) {
+        try {
+            // Buscar el usuario
+            Usuario usuario = us.findUsuario(usuarioId);
+            if (usuario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .build();
+            }
+
+            // Obtener las comunidades del usuario y convertirlas a DTO
+            List<ComunidadDTO> comunidadesDTO = usuario.getComunidades().stream()
+                    .map(ComunidadDTO::new)
+                    .collect(Collectors.toList());
+
+            return Response.ok(comunidadesDTO).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+    @GET
+    @Path("/admin/{usuarioId}")
+    public Response getComunidadesComoAdmin(@PathParam("usuarioId") Long usuarioId) {
+        try {
+            // Verificar si el usuario existe
+            Usuario usuario = us.findUsuario(usuarioId);
+            if (usuario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .build();
+            }
+
+            // Obtener comunidades donde el usuario es admin
+            List<Comunidad> comunidades = cs.findComunidadesByAdmin(usuarioId);
+            List<ComunidadDTO> comunidadesDTO = comunidades.stream()
+                    .map(ComunidadDTO::new)
+                    .collect(Collectors.toList());
+
+            return Response.ok(comunidadesDTO).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
         }
     }
 }

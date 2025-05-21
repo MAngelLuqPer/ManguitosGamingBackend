@@ -13,12 +13,15 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import model.entities.Comentario;
 import model.entities.Comunidad;
 import model.entities.DTOs.ComunidadDTO;
 import model.entities.DTOs.PublicacionDTO;
 import model.entities.Publicacion;
 import model.entities.Usuario;
+import model.services.ComentarioService;
 import model.services.ComunidadService;
 import model.services.PublicacionService;
 import model.services.UsuarioService;
@@ -52,22 +55,39 @@ public class PublicacionREST {
     }
     @GET
     @Path("/{id}")
-    public Response getPublicacion(@javax.ws.rs.PathParam("id") Long id) {
+    public Response getPublicacion(@PathParam("id") Long id) {
         Publicacion publicacion = ps.findPublicacion(id);
         PublicacionDTO publicacionDTOs = new PublicacionDTO(publicacion);
         return Response.ok(publicacionDTOs).build();
     }
     @DELETE
     @Path("/{id}")
-        public Response deletePublicacion(@javax.ws.rs.PathParam("id") Long id) {
-        System.out.println(id);
-        try {
-            ps.destroy(id);
-            return Response.ok().build(); // 204 No Content si se elimina correctamente
-        } catch (Exception e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Publicación no encontrada con id: " + id).build();
-        }
+    public Response deletePublicacion(@PathParam("id") Long id) {
+             try {
+        ComentarioService cs = new ComentarioService(emf);
+        PublicacionService ps = new PublicacionService(emf);
+
+        boolean seElimino;
+        do {
+            seElimino = false;
+            List<Comentario> comentarios = cs.findComentarioEntitiesByPublicacion(id);
+            for (Comentario comentario : comentarios) {
+                List<Comentario> respuestas = cs.findRespuestasByComentarioPadre(comentario.getId());
+                if (respuestas == null || respuestas.isEmpty()) {
+                    cs.destroy(comentario.getId());
+                    seElimino = true;
+                }
+            }
+        } while (seElimino);
+
+        ps.destroy(id);
+        return Response.ok().build();
+
+    } catch (Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error al eliminar la publicación con id: " + id + " - " + e.getMessage())
+                .build();
+    }
     }
     @POST
         public Response createPubli ( PublicacionDTO publiDTO){

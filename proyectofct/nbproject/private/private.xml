@@ -31,6 +31,9 @@
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/conf/persistence.xml</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/rs/TestREST.java</file>
             <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/DTOs/ExpulsadoDTO.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/rs/ReportarREST.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/DTOs/ReportesDTO.java</file>
+            <file>file:/home/mangel/NetBeansProjects/proyectofct/src/java/model/entities/DTOs/UnionDTO.java</file>
         </group>
     </open-files>
 </project-private>

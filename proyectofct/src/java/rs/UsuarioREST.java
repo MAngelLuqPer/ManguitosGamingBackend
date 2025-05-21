@@ -15,6 +15,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.entities.DTOs.UsuarioDTO;
@@ -55,7 +56,7 @@ public class UsuarioREST {
     public Response createUsuario(UsuarioDTO usuarioDTO) {
         try {
             Usuario usuario = new Usuario();
-            usuario.setNombre(usuarioDTO.getNombre());
+            usuario.setNombre("u/"+usuarioDTO.getNombre());
             usuario.setEmail(usuarioDTO.getEmail());
             if (us.findUsuarioByEmail(usuario.getEmail()) != null )  {
                 return Response.status(Response.Status.CONFLICT).build();
@@ -93,6 +94,20 @@ public class UsuarioREST {
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Contraseña incorrecta").build();
         }
+    }
+    @GET
+    @Path("/buscar")
+    public Response buscarUsuariosPorNombre(@QueryParam("q") String texto) {
+        if (texto == null || texto.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("El parámetro 'q' es obligatorio").build();
+        }
+
+        List<Usuario> usuarios = us.buscarPorNombre(texto);
+         List<UsuarioDTO> dtos = usuarios.stream()
+            .map(UsuarioDTO::new) 
+            .collect(Collectors.toList());
+        return Response.ok(dtos).build();
     }
 }
 
