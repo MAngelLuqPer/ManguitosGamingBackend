@@ -19,6 +19,7 @@ public class ApplicationConfig extends ResourceConfig {
     public ApplicationConfig() {
         // Registro de recursos (aquí defines las clases que responden a las rutas)
         packages("rs");  // Paquete donde se encuentran tus recursos
+        
 
     }
 }

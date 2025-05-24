@@ -14,6 +14,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -276,6 +277,35 @@ public class ComunidadREST {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .build();
+        }
+    }
+    @PUT
+    @Path("/{id}")
+    public Response editarComunidad(@PathParam("id") Long id, ComunidadDTO comunidadDto) {
+        try {
+            Comunidad comunidad = cs.findComunidad(id);
+            if (comunidad == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Comunidad no encontrada con id: " + id).build();
+            }
+
+            // Actualiza los campos necesarios
+            if (comunidadDto.getNombre() != null && !comunidadDto.getNombre().isEmpty()) {
+                comunidad.setNombre("m/" + comunidadDto.getNombre());
+            }
+            if (comunidadDto.getDescripcion() != null) {
+                comunidad.setDescripcion(comunidadDto.getDescripcion());
+            }
+            if (comunidadDto.getReglas() != null) {
+                comunidad.setReglas(comunidadDto.getReglas());
+            }
+
+            cs.edit(comunidad);
+            return Response.status(Response.Status.OK).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al editar comunidad: " + e.getMessage()).build();
         }
     }
 }

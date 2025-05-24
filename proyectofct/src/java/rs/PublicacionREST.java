@@ -6,6 +6,8 @@ package rs;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -90,7 +92,7 @@ public class PublicacionREST {
     }
     }
     @POST
-        public Response createPubli ( PublicacionDTO publiDTO){
+    public Response createPubli ( PublicacionDTO publiDTO){
             Publicacion newPubli = new Publicacion();
             newPubli.setTitulo(publiDTO.getTitulo());
             newPubli.setContenido(publiDTO.getContenido());
@@ -102,6 +104,35 @@ public class PublicacionREST {
             newPubli.setComunidad(comunidad);
             ps.create(newPubli);
             return Response.status(Response.Status.CREATED).build();
+    }
+    @POST
+    @Path("/{publicacionId}/upvote")
+    public Response valorarPublicacion(@PathParam("publicacionId") Long publiId){
+        Publicacion publi = ps.findPublicacion(publiId);
+        int votos = publi.getNumVotos();
+        votos++;
+        publi.setNumVotos(votos);
+        try {
+            ps.edit(publi);
+            return Response.status(Response.Status.OK).build(); 
+        } catch (Exception ex) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
+    }
+    
+        @POST
+    @Path("/{publicacionId}/downvote")
+    public Response valorarPublicacionNegativo(@PathParam("publicacionId") Long publiId){
+        Publicacion publi = ps.findPublicacion(publiId);
+        int votos = publi.getNumVotos();
+        votos--;
+        publi.setNumVotos(votos);
+        try {
+            ps.edit(publi);
+            return Response.status(Response.Status.OK).build(); 
+        } catch (Exception ex) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
 }
 

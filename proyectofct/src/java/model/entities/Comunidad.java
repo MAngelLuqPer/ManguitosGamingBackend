@@ -4,6 +4,10 @@
  */
 package model.entities;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Entity;
@@ -18,6 +22,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 
 /**
  *
