@@ -1,0 +1,6 @@
+model/entities/Comunidad_.java
+model/entities/Publicacion_.java
+model/entities/Reportes_.java
+model/entities/Comentario_.java
+model/entities/Usuario_.java
+model/entities/Expulsados_.java
