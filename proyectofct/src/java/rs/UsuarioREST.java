@@ -21,7 +21,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.entities.DTOs.UsuarioDTO;
 import model.entities.DTOs.UsuarioLoginDTO;
+import model.entities.Email;
 import model.entities.Usuario;
+import model.entities.Utilidades;
 import model.services.UsuarioService;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -69,6 +71,15 @@ public class UsuarioREST {
             usuario.setPwd(hashedPassword);
 
             us.create(usuario);
+            Email email = new Email();
+            email.setFrom("luque.perez.miguel.angel@iescamas.es"); // Cambia esto por tu cuenta real
+            email.setTo(usuario.getEmail());
+            email.setSubject("¡Bienvenido a ManguitosGaming, "+usuario.getNombre()+" !");
+            email.setText("Hola " + usuario.getNombre() + ",\n\n¡Gracias por registrarte en nuestra plataforma ManguitosGaming, espero que disfrute de su experiencia!");
+
+            Utilidades util = new Utilidades();
+            util.enviarEmail(email, "dudx ppxf fktm zwdk"); 
+
             return Response.status(Response.Status.CREATED).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
