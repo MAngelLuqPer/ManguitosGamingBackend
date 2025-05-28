@@ -7,6 +7,7 @@ package rs;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.mail.MessagingException;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.ws.rs.Consumes;
@@ -92,7 +93,7 @@ public class UsuarioREST {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response login(UsuarioLoginDTO login) {
+    public Response login(UsuarioLoginDTO login) throws MessagingException {
         
         Usuario usuario = us.findUsuarioByEmail(login.getEmail());
 
@@ -102,6 +103,19 @@ public class UsuarioREST {
 
         if (BCrypt.checkpw(login.getPwd(), usuario.getPwd())) {
             UsuarioDTO usuarioDTO = new UsuarioDTO(usuario);
+             Email email = new Email();
+             String mensaje = "Hola " + usuario.getNombre() + ",\n\n" +
+                    "Hemos detectado un nuevo inicio de sesión en tu cuenta.\n" +
+                    "Dirección IP: " + login.getIp() + "\n" +
+                    "Fecha y hora: " + new Date().toString() + "\n\n" +
+                    "Si no reconoces esta actividad, ¡cambie su contraseña de inmediato!";
+            email.setFrom("luque.perez.miguel.angel@iescamas.es"); // Cambia esto por tu cuenta real
+            email.setTo(usuario.getEmail());
+            email.setSubject("Nuevo inicio de sesion en ManguitosGaming, "+usuario.getNombre());
+            email.setText(mensaje);
+
+            Utilidades util = new Utilidades();
+            util.enviarEmail(email, "dudx ppxf fktm zwdk"); 
             return Response.ok(usuarioDTO).build();
         } else {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Contraseña incorrecta").build();

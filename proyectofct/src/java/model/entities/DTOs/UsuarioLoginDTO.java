@@ -11,6 +11,8 @@ package model.entities.DTOs;
 public class UsuarioLoginDTO {
     private String email;
     private String pwd;
+    private String ip;
+
 
     public String getEmail() {
         return email;
@@ -26,5 +28,13 @@ public class UsuarioLoginDTO {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+    
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }
