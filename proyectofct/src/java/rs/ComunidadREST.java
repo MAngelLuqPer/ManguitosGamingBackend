@@ -170,7 +170,6 @@ public class ComunidadREST {
             }
 
 
-            // 3. Verificar membresía (versión mejorada)
             boolean usuarioEnComunidad = comunidad.getUsuarios().stream()
                 .anyMatch(u -> u.getId().equals(usuario.getId()));
 
@@ -186,7 +185,7 @@ public class ComunidadREST {
             expulsion.setRazon(expulsionDTO.getRazon());
             expulsion.setFechaFin(expulsionDTO.getFechaFin());
 
-            // 5. Actualizar relaciones (versión segura)
+            // 5. Actualizar relaciones 
             comunidad.getUsuarios().removeIf(u -> u.getId().equals(usuario.getId()));
             usuario.getComunidades().removeIf(c -> c.getId().equals(comunidad.getId()));
 
@@ -205,6 +204,87 @@ public class ComunidadREST {
         }
     }
     @GET
+    @Path("/{comunidadId}/expulsados")
+    public Response getUsuariosExpulsados(@PathParam("comunidadId") Long comunidadId) {
+        try {
+            Comunidad comunidad = cs.findComunidad(comunidadId);
+            if (comunidad == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Comunidad no encontrada con id: " + comunidadId).build();
+            }
+
+            List<Expulsados> expulsados = es.findExpulsadosByComunidad(comunidadId);
+
+            List<ExpulsadoDTO> expulsadosDTO = expulsados.stream()
+                .map(ExpulsadoDTO::new)
+                .collect(Collectors.toList());
+
+            return Response.ok(expulsadosDTO).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al obtener usuarios expulsados: " + e.getMessage()).build();
+        }
+    }
+    @DELETE
+    @Path("/expulsar/{expulsionId}")
+    public Response eliminarExpulsion(@PathParam("expulsionId") Long expulsionId) {
+        try {
+            es.destroy(expulsionId);
+            return Response.status(Response.Status.ACCEPTED).build();
+        } catch (NonexistentEntityException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @PUT
+    @Path("/expulsar/{expulsionId}/fecha")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response actualizarFechaExpulsion(@PathParam("expulsionId") Long expulsionId, ExpulsadoDTO dto) {
+        try {
+            Expulsados expulsion = es.findExpulsados(expulsionId);
+            if (expulsion == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Expulsión no encontrada con id: " + expulsionId).build();
+            }
+
+            // Actualizar la fecha
+            expulsion.setFechaFin(dto.getFechaFin());
+            es.edit(expulsion);
+
+            return Response.ok().build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al actualizar la fecha de expulsión: " + e.getMessage()).build();
+        }
+    }
+    @DELETE
+    @Path("/expulsar/limpiar-vencidas")
+    public Response eliminarExpulsionesVencidas() {
+        try {
+            Date ahora = new Date();
+            List<Expulsados> expulsiones = es.findExpulsadosEntities(); // Método para obtener todas las expulsiones
+            int eliminadas = 0;
+
+            for (Expulsados e : expulsiones) {
+                if (e.getFechaFin() != null && e.getFechaFin().before(ahora)) {
+                    es.destroy(e.getId());
+                    eliminadas++;
+                }
+            }
+
+            return Response.status(Response.Status.OK).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al eliminar expulsiones vencidas: " + e.getMessage()).build();
+        }
+    }
+
+
+    @GET
     @Path("/buscar")
     public Response buscarComunidades(@QueryParam("q") String texto) {
         List<ComunidadDTO> resultados = cs.buscarPorNombre(texto);
@@ -214,12 +294,21 @@ public class ComunidadREST {
     @Path("/{id}")
     public Response eliminarComunidad(@PathParam("id") Long id) {
         try {
-            // 1. Obtener todas las publicaciones de la comunidad
-            List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(id); // ps es PublicacionService
+            Comunidad comunidad = cs.findComunidad(id);
+            if (comunidad == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Comunidad no encontrada").build();
+            }
 
-            // 2. Eliminar cada publicación
+            // 1. Eliminar publicaciones
+            List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(id);
             for (Publicacion pub : publicaciones) {
-                ps.destroy(pub.getId()); // Asegúrate de tener este método en el PublicacionService
+                ps.destroy(pub.getId());
+            }
+
+            // 2. Eliminar expulsiones
+            List<Expulsados> expulsiones = es.findExpulsionesByComunidadId(id); // Necesitas este método en ExpulsadosService
+            for (Expulsados e : expulsiones) {
+                es.destroy(e.getId());
             }
 
             // 3. Eliminar la comunidad
@@ -228,7 +317,11 @@ public class ComunidadREST {
             return Response.status(Response.Status.ACCEPTED).build();
 
         } catch (NonexistentEntityException ex) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("No se pudo eliminar la comunidad").build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error inesperado: " + e.getMessage()).build();
         }
     }
     

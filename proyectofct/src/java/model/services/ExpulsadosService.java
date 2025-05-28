@@ -133,5 +133,18 @@ public class ExpulsadosService implements Serializable {
             em.close();
         }
     }
+    public List<Expulsados> findExpulsadosByComunidad(Long comunidadId) {
+    return emf.createEntityManager()
+        .createQuery("SELECT e FROM Expulsados e WHERE e.comunidad.id = :comunidadId", Expulsados.class)
+        .setParameter("comunidadId", comunidadId)
+        .getResultList();
+}
+
+public List<Expulsados> findExpulsionesByComunidadId(Long comunidadId) {
+    EntityManager em = getEntityManager();
+    return em.createQuery("SELECT e FROM Expulsados e WHERE e.comunidad.id = :comunidadId", Expulsados.class)
+             .setParameter("comunidadId", comunidadId)
+             .getResultList();
+}
     
 }

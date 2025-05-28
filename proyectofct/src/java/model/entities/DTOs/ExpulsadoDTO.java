@@ -1,6 +1,7 @@
 package model.entities.DTOs;
 
 import java.util.Date;
+import model.entities.Expulsados;
 
 /**
  * DTO para la entidad Expulsados
@@ -29,7 +30,24 @@ public class ExpulsadoDTO {
         this.comunidadId = comunidadId;
         this.comunidadNombre = comunidadNombre;
     }
+    
+    public ExpulsadoDTO(Expulsados expulsado) {
+        this.id = expulsado.getId();
+        this.razon = expulsado.getRazon();
+        this.fechaFin = expulsado.getFechaFin();
 
+        if (expulsado.getUsuario() != null) {
+            this.usuarioId = expulsado.getUsuario().getId();
+            this.usuarioNombre = expulsado.getUsuario().getNombre();
+        }
+
+        if (expulsado.getComunidad() != null) {
+            this.comunidadId = expulsado.getComunidad().getId();
+            this.comunidadNombre = expulsado.getComunidad().getNombre();
+        }
+    }
+
+    
     // Getters y Setters
     public Long getId() {
         return id;

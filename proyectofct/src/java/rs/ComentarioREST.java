@@ -71,7 +71,10 @@ public class ComentarioREST {
                         .entity("Usuario no encontrado").build();
             }
             comentario.setUsuario(usuario);
-
+            int numComentariosUsuario = usuario.getNumComentarios();
+            numComentariosUsuario++;
+            usuario.setNumComentarios(numComentariosUsuario);
+            us.edit(usuario);
             // Obtener publicación
             Publicacion publicacion = ps.findPublicacion(comentarioDTO.getPublicacionId());
             if (publicacion == null) {
@@ -90,17 +93,32 @@ public class ComentarioREST {
     }
     @DELETE
     @Path("/{id}")
-    public Response deleteComment(@PathParam("id") Long comId) {
-        try {
-        // Eliminar recursivamente las respuestas del comentario
-        List<Comentario> respuestas = cs.findRespuestasByComentarioPadre(comId);
-        for (Comentario respuesta : respuestas) {
-            deleteComment(respuesta.getId()); // Llamada recursiva
-        }
+        public Response deleteComment(@PathParam("id") Long comId) {
+              try {
+            Comentario comentario = cs.findComentario(comId); // Necesario para obtener el autor
+            if (comentario == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Comentario no encontrado con id: " + comId).build();
+            }
 
-            // Eliminar el comentario raíz
+            // 1. Eliminar recursivamente las respuestas
+            List<Comentario> respuestas = cs.findRespuestasByComentarioPadre(comId);
+            for (Comentario respuesta : respuestas) {
+                deleteComment(respuesta.getId()); // Llamada recursiva
+            }
+
+            // 2. Decrementar numComentarios del autor
+            Usuario autor = comentario.getUsuario(); // Asegúrate de tener getAutor() en la entidad Comentario
+            if (autor != null) {
+                int num = autor.getNumComentarios();
+                autor.setNumComentarios(Math.max(0, num - 1)); // Evita negativos
+                us.edit(autor); // Guarda cambios
+            }
+
+            // 3. Eliminar el comentario raíz
             cs.destroy(comId);
             return Response.status(Response.Status.NO_CONTENT).build();
+
         } catch (NonexistentEntityException ex) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Comentario no encontrado con id: " + comId).build();
@@ -124,7 +142,6 @@ public class ComentarioREST {
                         .entity("Usuario no encontrado").build();
             }
             comentario.setUsuario(usuario);
-
             // Obtener publicación
             Publicacion publicacion = ps.findPublicacion(comentarioDTO.getPublicacionId());
             if (publicacion == null) {

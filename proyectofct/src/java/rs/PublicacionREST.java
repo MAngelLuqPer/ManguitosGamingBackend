@@ -36,6 +36,7 @@ import model.services.UsuarioService;
 public class PublicacionREST {
     EntityManagerFactory emf = Persistence.createEntityManagerFactory("proyectofctPU");
     PublicacionService ps = new PublicacionService(emf);
+    UsuarioService us = new UsuarioService(emf);
     @GET
     public Response getAllPublicaciones() {
     List<Publicacion> publicaciones = ps.findPublicacionEntities();
@@ -68,7 +69,18 @@ public class PublicacionREST {
              try {
         ComentarioService cs = new ComentarioService(emf);
         PublicacionService ps = new PublicacionService(emf);
+        Publicacion publicacion = ps.findPublicacion(id);
+        if (publicacion == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Publicación no encontrada con id: " + id).build();
+        }
 
+        Usuario autor = publicacion.getUsuario();
+               if (autor != null) {
+                   int num = autor.getNumPublicaciones();
+                   autor.setNumPublicaciones(Math.max(0, num - 1)); // Evita valores negativos
+                   us.edit(autor); // Persistir cambios en el autor
+               }
         boolean seElimino;
         do {
             seElimino = false;
@@ -102,6 +114,17 @@ public class PublicacionREST {
             Comunidad comunidad = new ComunidadService(emf).findComunidad(publiDTO.getComunidadId());
             newPubli.setUsuario(usuario);
             newPubli.setComunidad(comunidad);
+            int numPublicaciones = usuario.getNumPublicaciones();
+            numPublicaciones++;
+            usuario.setNumPublicaciones(numPublicaciones);
+            System.out.println(usuario.getNumComentarios());
+            try {
+                us.edit(usuario);
+            } catch (Exception ex) {
+                Logger.getLogger(PublicacionREST.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            usuario.setNumPublicaciones(numPublicaciones);
+            
             ps.create(newPubli);
             return Response.status(Response.Status.CREATED).build();
     }
@@ -133,6 +156,24 @@ public class PublicacionREST {
         } catch (Exception ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+    }
+    @GET
+    @Path("/usuario/{id}/posts")
+    public Response getPublicacionesByUsuario(@PathParam("id") Long id) {
+        // Buscar al usuario
+        Usuario usuario = us.findUsuario(id);
+        if (usuario == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Usuario no encontrado con id: " + id).build();
+        }
+
+        // Obtener publicaciones por usuario
+        List<Publicacion> publicaciones = ps.findPublicacionesByUsuarioId(id);
+        List<PublicacionDTO> publicacionDTOs = publicaciones.stream()
+                .map(PublicacionDTO::new)
+                .collect(Collectors.toList());
+
+        return Response.ok(publicacionDTOs).build();
     }
 }
 
