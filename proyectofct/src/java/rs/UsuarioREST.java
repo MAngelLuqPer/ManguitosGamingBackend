@@ -73,7 +73,7 @@ public class UsuarioREST {
 
             us.create(usuario);
             Email email = new Email();
-            email.setFrom("luque.perez.miguel.angel@iescamas.es"); // Cambia esto por tu cuenta real
+            email.setFrom("luque.perez.miguel.angel@iescamas.es"); 
             email.setTo(usuario.getEmail());
             email.setSubject("¡Bienvenido a ManguitosGaming, "+usuario.getNombre()+" !");
             email.setText("Hola " + usuario.getNombre() + ",\n\n¡Gracias por registrarte en nuestra plataforma ManguitosGaming, espero que disfrute de su experiencia!");

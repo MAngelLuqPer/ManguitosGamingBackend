@@ -182,5 +182,31 @@ public class ComentarioREST {
                     .entity("Error al obtener respuestas: " + e.getMessage()).build();
         }
     }
+    @GET
+    @Path("/comunidad/{comunidadId}")
+    public Response getComentariosByComunidad(@PathParam("comunidadId") Long comunidadId) {
+        try {
+            // Obtener todas las publicaciones de la comunidad
+            List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(comunidadId);
+            if (publicaciones == null || publicaciones.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron publicaciones para la comunidad con id: " + comunidadId).build();
+            }
+
+            // Obtener comentarios de todas las publicaciones
+            List<Comentario> todosComentarios = publicaciones.stream()
+                    .flatMap(p -> cs.findComentarioEntitiesByPublicacion(p.getId()).stream())
+                    .collect(Collectors.toList());
+
+            List<ComentarioDTO> comentarioDTOs = todosComentarios.stream()
+                    .map(ComentarioDTO::new)
+                    .collect(Collectors.toList());
+
+            return Response.ok(comentarioDTOs).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al obtener comentarios de la comunidad: " + e.getMessage()).build();
+        }
+    }
 }
 

@@ -298,6 +298,7 @@ public class ComunidadREST {
             if (comunidad == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Comunidad no encontrada").build();
             }
+            
 
             // 1. Eliminar publicaciones
             List<Publicacion> publicaciones = ps.findPublicacionesByComunidadId(id);
